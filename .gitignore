@@ -1,0 +1,50 @@
+# Environment files - NEVER commit secrets
+.env
+.env.backup
+.env.backup*
+.env.production*
+!.env.example
+
+# Database files
+*.db
+*.db-*
+*.db.backup
+studymate.db*
+
+# User-generated data
+uploads/
+data/
+
+# Virtual environments
+backend/.venv/
+model-lab/.venv/
+
+# Node.js
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Python cache
+__pycache__/
+*.py[cio]
+*.pyd
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# Testing artifacts
+htmlcov/
+.coverage
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log

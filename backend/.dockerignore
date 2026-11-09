@@ -1,0 +1,46 @@
+# Environment files - NEVER include in build
+.env
+.env.backup
+.env.backup2
+.env.backup3
+
+# Database files - NEVER include in build
+studymate.db
+studymate.db.backup
+studymate.db-journal
+studymate.db-wal
+studymate.db-shm
+
+# Persistent uploads - NEVER include in build
+uploads/
+uploads/pdfs/
+
+# Virtual environments - NEVER include in build
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Test and diagnostic scripts
+test_task2_3.py
+test_pdf_upload.py
+verify_task1_6.py
+task16_auth_diagnostic.py
+task16_register_test.py
+rotate_jwt_secret.py
+
+# pytest cache
+.pytest_cache/
+
+# Local data directory (mounted at runtime)
+data/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

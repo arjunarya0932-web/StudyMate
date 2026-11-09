@@ -1,0 +1,74 @@
+# StudyMate Production Deployment Configuration
+# ==============================================
+# This file orchestrates the StudyMate backend and frontend containers.
+#
+# Data Preservation:
+#   - The SQLite database is mounted from ./backend/data/ (directory-based mount)
+#   - Uploaded PDFs are mounted from ./backend/uploads/
+#   - The original backend/studymate.db is preserved untouched as a rollback copy
+#
+# Environment:
+#   - Secrets are loaded from ./backend/.env (never copied into the image)
+#   - DATABASE_URL is overridden at runtime to point to the mounted database directory
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        # Match host user UID/GID for file permission compatibility
+        # Default: UID=501 (macOS first user), GID=20 (dialout group)
+        # If GID 20 exists in base image, it will be reused.
+        - HOST_UID=${HOST_UID:-501}
+        - HOST_GID=${HOST_GID:-20}
+    container_name: studymate-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override DATABASE_URL to use the mounted directory-based database
+      - DATABASE_URL=sqlite:////app/data/studymate.db
+      # Connect to Ollama running on the Mac host
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    volumes:
+      # Directory-based mount for SQLite database and journal/sidecar files
+      - ./backend/data:/app/data
+      # Persistent mount for uploaded PDFs
+      - ./backend/uploads:/app/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./study-assistant-web
+      dockerfile: Dockerfile
+      args:
+        # Inject the production API URL at build time
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000}
+    container_name: studymate-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
+
+# Named volumes for data persistence (optional, for non-bind-mount setups)
+# volumes:
+#   studymate_data:
+#   studymate_uploads:

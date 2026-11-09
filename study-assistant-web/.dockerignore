@@ -1,0 +1,27 @@
+# Environment files - NEVER include in build
+.env
+.env.local
+.env.development
+.env.production
+.env.production.example
+
+# Node modules - NEVER include in build
+node_modules/
+
+# Build output - NEVER include in build
+dist/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
